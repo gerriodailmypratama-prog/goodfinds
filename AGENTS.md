@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL5 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL6 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -108,3 +108,5 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL3** — Fix deploy: add `wrangler.jsonc` entry-point/assets for `wrangler versions upload`; rename route files to `+layout.svelte` / `+page.svelte`.
 - **PR-CL4** — Fix build: correct SvelteKit Vite plugin import to `@sveltejs/kit/vite` (was wrongly `@sveltejs/vite-plugin-svelte`, which has no `sveltekit` export). Supersedes PR-CL2.
 - **PR-CL5** — UI theme: match GoodGems WMS dark theme (bg #0a0a0a, green-400 accent, Geist/Inter font) + responsive hamburger nav in layout. CSS-only, no schema/auth changes.
+
+**PR-CL6** — DB: grants + RLS for schema `goodfinds` to fix HTTP 401 "permission denied for schema goodfinds". GRANT USAGE + table/view privileges to anon & authenticated, ENABLE RLS on suppliers & balls, add permissive policies (public app, anon key). Migration `sql/0002_pr_cl6_grants_rls.sql`; owner applies SQL to prod. No DROP/DELETE, no wms.*.
