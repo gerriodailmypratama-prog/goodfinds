@@ -133,6 +133,7 @@ onMount(loadAll);
 <div class="overflow-x-auto">
 <table class="w-full text-sm">
 <thead class="bg-gray-50 text-gray-600 text-left">
+<tr>
 <th class="px-4 py-2">Ball</th>
 <th class="px-4 py-2">Kategori</th>
 <th class="px-4 py-2">Seller</th>
@@ -143,6 +144,7 @@ onMount(loadAll);
 <th class="px-4 py-2 text-right">Reject</th>
 <th class="px-4 py-2 text-right">Modal/Pcs</th>
 <th class="px-4 py-2 text-right">Reject %</th>
+</tr>
 </thead>
 <tbody>
 {#each balls as b}
