@@ -12,6 +12,7 @@ const today = new Date().toISOString().slice(0, 10);
 
 let form = {
 ball_code: '',
+ball_name: '',
 category: '',
 supplier_id: '',
 buy_price: '',
@@ -54,6 +55,7 @@ return;
 saving = true;
 const payload = {
 ball_code: form.ball_code.trim(),
+ball_name: form.ball_name.trim(),
 category: form.category.trim(),
 supplier_id: form.supplier_id || null,
 buy_price: Number(form.buy_price),
@@ -66,8 +68,8 @@ status: 'bought'
 const { error } = await supabase.from('balls').insert(payload);
 saving = false;
 if (error) { errorMsg = error.message; return; }
-form = { ball_code: '', category: '', supplier_id: '', buy_price: '', shipping_cost: '', qty_pcs: '', qty_reject: '', buy_date: today };
-await loadAll();
+    form = { ball_code: '', ball_name: '', category: '', supplier_id: '', buy_price: '', shipping_cost: '', qty_pcs: '', qty_reject: '', buy_date: today };
+    await loadAll();
 }
 
 onMount(loadAll);
@@ -85,6 +87,9 @@ onMount(loadAll);
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 <label class="text-sm">Ball Code
 <input bind:value={form.ball_code} placeholder="AOSP" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
+</label>
+<label class="text-sm">Nama Ball
+<input bind:value={form.ball_name} placeholder="Bola Plastik" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
 </label>
 <label class="text-sm">Kategori
 <input bind:value={form.category} placeholder="celana" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
@@ -135,6 +140,7 @@ onMount(loadAll);
 <thead class="bg-gray-50 text-gray-600 text-left">
 <tr>
 <th class="px-4 py-2">Ball</th>
+<th class="px-4 py-2">Nama</th>
 <th class="px-4 py-2">Kategori</th>
 <th class="px-4 py-2">Seller</th>
 <th class="px-4 py-2">Tanggal</th>
@@ -150,6 +156,7 @@ onMount(loadAll);
 {#each balls as b}
 <tr class="border-t border-gray-100">
 <td class="px-4 py-2 font-medium">{b.ball_code}</td>
+<td class="px-4 py-2">{b.ball_name ?? '-'}</td>
 <td class="px-4 py-2">{b.category}</td>
 <td class="px-4 py-2">{b.supplier_code ?? '-'}</td>
 <td class="px-4 py-2">{b.buy_date ?? '-'}</td>

@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL7 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL8 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -111,5 +111,6 @@ STOP and get explicit owner approval in chat before:
 
 **PR-CL6** — DB: grants + RLS for schema `goodfinds` to fix HTTP 401 "permission denied for schema goodfinds". GRANT USAGE + table/view privileges to anon & authenticated, ENABLE RLS on suppliers & balls, add permissive policies (public app, anon key). Migration `sql/0002_pr_cl6_grants_rls.sql`; owner applies SQL to prod. No DROP/DELETE, no wms.*.
 - **PR-CL7** — Purchasing: add Ongkir (balls.shipping_cost, numeric default 0) + Tanggal Pembelian (buy_date) inputs in the form, and Ongkir/Tanggal columns in Daftar Ball. modal_per_pcs now = (buy_price + shipping_cost) / qty_pcs. Migration sql/0003_pr_cl7_ongkir_buydate.sql (drop+recreate view, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
+- **PR-CL8** — Purchasing: add Ball Name (balls.ball_name, text) input in the form and a Nama column in Daftar Ball; v_ball_economics rebuilt to expose ball_name. Migration sql/0004_pr_cl8_ball_name.sql (drop+recreate view, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
 
 **PR-CL7** — Purchasing: add Ongkir (`balls.shipping_cost`, numeric default 0) + Tanggal Pembelian (`buy_date`) inputs in the form, and Ongkir/Tanggal columns in Daftar Ball. `modal_per_pcs` now = (buy_price + shipping_cost) / qty_pcs. Migration `sql/0003_pr_cl7_ongkir_buydate.sql` (drop+recreate view, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
