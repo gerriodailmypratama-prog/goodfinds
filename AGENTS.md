@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL3 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL4 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -106,3 +106,4 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL1** — Initial scaffolding + AGENTS.md.
 - **PR-CL2** — Fix build: SvelteKit Vite plugin import path (`@sveltejs/kit/vite`).
 - **PR-CL3** — Fix deploy: add `wrangler.jsonc` entry-point/assets for `wrangler versions upload`; rename route files to `+layout.svelte` / `+page.svelte`.
+- **PR-CL4** — Fix build: correct SvelteKit Vite plugin import to `@sveltejs/kit/vite` (was wrongly `@sveltejs/vite-plugin-svelte`, which has no `sveltekit` export). Supersedes PR-CL2.
