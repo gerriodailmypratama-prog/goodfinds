@@ -38,3 +38,5 @@ left join goodfinds.suppliers s on s.id = b.supplier_id;
 
 -- 3) Keep API access (view recreated, so grant select again)
 grant select on goodfinds.v_ball_economics to anon, authenticated;
+
+-- (no-op touch: re-trigger build for PR-CL7)
