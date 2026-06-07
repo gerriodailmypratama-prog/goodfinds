@@ -5,6 +5,9 @@ import { rupiah, angka, persen } from '$lib/format';
 
 let suppliers = [];
 let balls = [];
+  let categories = [];
+  let ballCodes = [];
+  let ballNames = [];
 let loading = true;
 let saving = false;
 let errorMsg = '';
@@ -26,14 +29,20 @@ let newSupplierCode = '';
 async function loadAll() {
 loading = true;
 errorMsg = '';
-const [sRes, bRes] = await Promise.all([
+const [sRes, bRes, cRes, bcRes, bnRes] = await Promise.all([
 supabase.from('suppliers').select('id, code, name').order('code'),
-supabase.from('v_ball_economics').select('*').order('buy_date', { ascending: false })
-]);
+supabase.from('v_ball_economics').select('*').order('buy_date', { ascending: false }),
+      supabase.from('categories').select('id, name').order('name'),
+      supabase.from('ball_codes').select('id, code').order('code'),
+      supabase.from('ball_names').select('id, name').order('name')
+    ]);
 if (sRes.error) errorMsg = sRes.error.message;
 if (bRes.error) errorMsg = bRes.error.message;
 suppliers = sRes.data ?? [];
 balls = bRes.data ?? [];
+    categories = cRes.data ?? [];
+    ballCodes = bcRes.data ?? [];
+    ballNames = bnRes.data ?? [];
 loading = false;
 }
 
@@ -66,8 +75,30 @@ const { error } = await supabase.from('balls').insert(payload);
 saving = false;
 if (error) { errorMsg = error.message; return; }
 form = { ball_code: '', ball_name: '', category: '', supplier_id: '', buy_price: '', shipping_cost: '', buy_date: today };
-await loadAll();
+await rememberReferences();
+    await loadAll();
 }
+  async function rememberReferences() {
+    const cat = form.category.trim();
+    const bc = form.ball_code.trim();
+    const bn = form.ball_name.trim();
+    const jobs = [];
+    if (cat) jobs.push(supabase.from('categories').upsert({ name: cat }, { onConflict: 'name' }));
+    if (bc) jobs.push(supabase.from('ball_codes').upsert({ code: bc }, { onConflict: 'code' }));
+    if (bn) jobs.push(supabase.from('ball_names').upsert({ name: bn }, { onConflict: 'name' }));
+    if (jobs.length) await Promise.all(jobs);
+  }
+
+  async function deleteBall(b) {
+    if (!b || !b.id) return;
+    const label = b.internal_code || b.ball_code || 'ball ini';
+    if (!confirm(`Hapus ${label}? Data akan disembunyikan dari daftar.`)) return;
+    errorMsg = "";
+    const { error } = await supabase.from('balls').update({ deleted_at: new Date().toISOString() }).eq('id', b.id);
+    if (error) { errorMsg = error.message; return; }
+    await loadAll();
+  }
+
 
 onMount(loadAll);
 </script>
@@ -83,13 +114,13 @@ onMount(loadAll);
 <h2 class="font-semibold">Input Ball Baru</h2>
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 <label class="text-sm">Ball Code
-<input bind:value={form.ball_code} placeholder="AOSP" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
+<input bind:value={form.ball_code} list="dl-ball-codes" placeholder="AOSP" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
 </label>
 <label class="text-sm">Nama Ball
-<input bind:value={form.ball_name} placeholder="Bola Plastik" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
+<input bind:value={form.ball_name} list="dl-ball-names" placeholder="Bola Plastik" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
 </label>
 <label class="text-sm">Kategori
-<input bind:value={form.category} placeholder="celana" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
+<input bind:value={form.category} list="dl-categories" placeholder="celana" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
 </label>
 <label class="text-sm">Supplier
 <select bind:value={form.supplier_id} class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5">
@@ -113,7 +144,16 @@ onMount(loadAll);
 <div>
 <button onclick={saveBall} disabled={saving} class="rounded bg-emerald-600 text-white px-4 py-2 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">{saving ? 'Menyimpan...' : 'Simpan Ball'}</button>
 </div>
-</section>
+      <datalist id="dl-ball-codes">
+        {#each ballCodes as c}<option value={c.code}></option>{/each}
+      </datalist>
+      <datalist id="dl-ball-names">
+        {#each ballNames as n}<option value={n.name}></option>{/each}
+      </datalist>
+      <datalist id="dl-categories">
+        {#each categories as c}<option value={c.name}></option>{/each}
+      </datalist>
+    </section>
 
 <section class="rounded-lg border border-gray-200 bg-white p-4 flex items-end gap-3">
 <label class="text-sm">Tambah Supplier (kode)
@@ -145,7 +185,8 @@ onMount(loadAll);
 <th class="px-4 py-2 text-right">Reject</th>
 <th class="px-4 py-2 text-right">Modal/Pcs</th>
 <th class="px-4 py-2 text-right">Reject %</th>
-</tr>
+            <th class="px-4 py-2 text-right">Aksi</th>
+          </tr>
 </thead>
 <tbody>
 {#each balls as b}
@@ -162,7 +203,10 @@ onMount(loadAll);
 <td class="px-4 py-2 text-right">{angka(b.qty_reject)}</td>
 <td class="px-4 py-2 text-right font-semibold">{rupiah(b.modal_per_pcs)}</td>
 <td class="px-4 py-2 text-right">{persen(b.reject_pct)}</td>
-</tr>
+            <td class="px-4 py-2 text-right">
+              <button onclick={() => deleteBall(b)} class="rounded border border-red-300 text-red-600 hover:bg-red-50 px-2 py-1 text-xs">Hapus</button>
+            </td>
+          </tr>
 {/each}
 </tbody>
 </table>
