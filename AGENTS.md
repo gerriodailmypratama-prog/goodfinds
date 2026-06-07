@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL12 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL13 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -120,3 +120,5 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL11** — Reference + Purchasing: new Reference page (suppliers, categories, ball codes, ball names) as reusable master data; Purchasing free-text inputs (ball code, nama, kategori) now autocomplete from those reference tables via datalist and new values are upserted back for reuse; added soft-delete (balls.deleted_at) with a Hapus button in Daftar Ball and v_ball_economics filtered to deleted_at IS NULL (test balls hidden from UI without hard DELETE). Migration sql/0007_pr_cl11_reference_softdelete.sql (add column + create reference tables + backfill + grants/RLS + drop/recreate view, re-grant select); owner applies SQL to prod. No DROP table / hard DELETE, no wms.*.
 
 - **PR-CL12** — Purchasing: complete delete + autocomplete missing from PR-CL11 — per-row Hapus button (soft-delete via balls.deleted_at; rows hidden by v_ball_economics filter), and ball code / nama / kategori inputs use datalist autocomplete from reference tables (categories, ball_codes, ball_names) with upsert-back on save. No DB change (migration 0007 already applied). No DROP table / DELETE, no wms.*.
+
+- **PR-CL13** — Fix: `balls_status_check` rejected new balls because the column default (and Purchasing insert) is `'ordered'` but the old constraint only allowed `'bought'`/`'opened'`/`'closed'` (error: new row violates check constraint balls_status_check on Input Ball). Migration sql/0008_pr_cl13_status_check_ordered.sql drops + re-adds the check to allow `ordered`/`opened`/`bought`/`closed`. Idempotent; owner applied SQL to prod first. No DROP table / hard DELETE, no wms.*.
