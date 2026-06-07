@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL9 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL10 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -115,3 +115,5 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL9** — Purchasing: auto-generate `internal_code` ({NAMABALL12}-{BALLCODE}-{MMYY}-{NNN}, numbering resets per month by buy_date) via BEFORE INSERT trigger `goodfinds.gen_ball_internal_code`; `status` default now `'ordered'`; removed qty inputs from form (qty filled later in Receiving), Daftar Ball shows read-only Internal Code column. Migration `sql/0005_pr_cl9_internal_code.sql` (add column + trigger + drop/recreate view, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
 
 **PR-CL7** — Purchasing: add Ongkir (`balls.shipping_cost`, numeric default 0) + Tanggal Pembelian (`buy_date`) inputs in the form, and Ongkir/Tanggal columns in Daftar Ball. `modal_per_pcs` now = (buy_price + shipping_cost) / qty_pcs. Migration `sql/0003_pr_cl7_ongkir_buydate.sql` (drop+recreate view, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
+
+- **PR-CL10** — Receiving: new `/receiving` page lists balls with `status = 'ordered'`; admin inputs `qty_pcs` + `qty_reject` per ball, on save sets `opened_at = today` and `status = 'opened'` (received balls move to a "Sudah Diterima" table). Added Receiving nav link in layout. Migration `sql/0006_pr_cl10_receiving.sql` (index on status + drop/recreate `v_ball_economics` to expose `opened_at`, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
