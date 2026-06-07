@@ -8,6 +8,7 @@ let balls = [];
 let loading = true;
 let saving = false;
 let errorMsg = '';
+
 const today = new Date().toISOString().slice(0, 10);
 
 let form = {
@@ -17,8 +18,6 @@ category: '',
 supplier_id: '',
 buy_price: '',
 shipping_cost: '',
-qty_pcs: '',
-qty_reject: '',
 buy_date: today
 };
 
@@ -60,16 +59,14 @@ category: form.category.trim(),
 supplier_id: form.supplier_id || null,
 buy_price: Number(form.buy_price),
 shipping_cost: form.shipping_cost === '' ? 0 : Number(form.shipping_cost),
-qty_pcs: form.qty_pcs === '' ? null : Number(form.qty_pcs),
-qty_reject: form.qty_reject === '' ? 0 : Number(form.qty_reject),
 buy_date: form.buy_date || today,
-status: 'bought'
+status: 'ordered'
 };
 const { error } = await supabase.from('balls').insert(payload);
 saving = false;
 if (error) { errorMsg = error.message; return; }
-    form = { ball_code: '', ball_name: '', category: '', supplier_id: '', buy_price: '', shipping_cost: '', qty_pcs: '', qty_reject: '', buy_date: today };
-    await loadAll();
+form = { ball_code: '', ball_name: '', category: '', supplier_id: '', buy_price: '', shipping_cost: '', buy_date: today };
+await loadAll();
 }
 
 onMount(loadAll);
@@ -111,21 +108,18 @@ onMount(loadAll);
 <label class="text-sm">Ongkir (Rp)
 <input type="number" bind:value={form.shipping_cost} placeholder="0" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
 </label>
-<label class="text-sm">Qty Pcs (layak)
-<input type="number" bind:value={form.qty_pcs} placeholder="475" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
-</label>
-<label class="text-sm">Qty Reject (dibuang)
-<input type="number" bind:value={form.qty_reject} placeholder="0" class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5" />
-</label>
 </div>
-<button on:click={saveBall} disabled={saving} class="rounded bg-emerald-600 text-white px-4 py-2 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">{saving ? 'Menyimpan...' : 'Simpan Ball'}</button>
+<p class="text-xs text-gray-500">Qty (pcs &amp; reject) diisi nanti di halaman Receiving saat ball dibuka.</p>
+<div>
+<button onclick={saveBall} disabled={saving} class="rounded bg-emerald-600 text-white px-4 py-2 text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">{saving ? 'Menyimpan...' : 'Simpan Ball'}</button>
+</div>
 </section>
 
 <section class="rounded-lg border border-gray-200 bg-white p-4 flex items-end gap-3">
 <label class="text-sm">Tambah Supplier (kode)
 <input bind:value={newSupplierCode} placeholder="A" class="mt-1 w-32 rounded border-gray-300 border px-2 py-1.5" />
 </label>
-<button on:click={addSupplier} class="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50">+ Supplier</button>
+<button onclick={addSupplier} class="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50">+ Supplier</button>
 </section>
 
 <section class="rounded-lg border border-gray-200 bg-white overflow-hidden">
@@ -139,6 +133,7 @@ onMount(loadAll);
 <table class="w-full text-sm">
 <thead class="bg-gray-50 text-gray-600 text-left">
 <tr>
+<th class="px-4 py-2">Internal Code</th>
 <th class="px-4 py-2">Ball</th>
 <th class="px-4 py-2">Nama</th>
 <th class="px-4 py-2">Kategori</th>
@@ -155,6 +150,7 @@ onMount(loadAll);
 <tbody>
 {#each balls as b}
 <tr class="border-t border-gray-100">
+<td class="px-4 py-2 font-mono text-xs">{b.internal_code ?? '-'}</td>
 <td class="px-4 py-2 font-medium">{b.ball_code}</td>
 <td class="px-4 py-2">{b.ball_name ?? '-'}</td>
 <td class="px-4 py-2">{b.category}</td>
