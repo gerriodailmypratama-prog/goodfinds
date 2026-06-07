@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL10 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL11 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -117,3 +117,4 @@ STOP and get explicit owner approval in chat before:
 **PR-CL7** — Purchasing: add Ongkir (`balls.shipping_cost`, numeric default 0) + Tanggal Pembelian (`buy_date`) inputs in the form, and Ongkir/Tanggal columns in Daftar Ball. `modal_per_pcs` now = (buy_price + shipping_cost) / qty_pcs. Migration `sql/0003_pr_cl7_ongkir_buydate.sql` (drop+recreate view, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
 
 - **PR-CL10** — Receiving: new `/receiving` page lists balls with `status = 'ordered'`; admin inputs `qty_pcs` + `qty_reject` per ball, on save sets `opened_at = today` and `status = 'opened'` (received balls move to a "Sudah Diterima" table). Added Receiving nav link in layout. Migration `sql/0006_pr_cl10_receiving.sql` (index on status + drop/recreate `v_ball_economics` to expose `opened_at`, re-grant select); owner applies SQL to prod. No DROP table / DELETE, no wms.*.
+- **PR-CL11** — Reference + Purchasing: new Reference page (suppliers, categories, ball codes, ball names) as reusable master data; Purchasing free-text inputs (ball code, nama, kategori) now autocomplete from those reference tables via datalist and new values are upserted back for reuse; added soft-delete (balls.deleted_at) with a Hapus button in Daftar Ball and v_ball_economics filtered to deleted_at IS NULL (test balls hidden from UI without hard DELETE). Migration sql/0007_pr_cl11_reference_softdelete.sql (add column + create reference tables + backfill + grants/RLS + drop/recreate view, re-grant select); owner applies SQL to prod. No DROP table / hard DELETE, no wms.*.
