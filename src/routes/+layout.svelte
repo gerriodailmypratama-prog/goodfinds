@@ -1,7 +1,7 @@
 <script>
 import '../app.css';
 import { page } from '$app/stores';
-const nav = [{ href: '/', label: 'Home' }, { href: '/purchasing', label: 'Purchasing' }, { href: '/receiving', label: 'Receiving' }];
+const nav = [{ href: '/', label: 'Home' }, { href: '/purchasing', label: 'Purchasing' }, { href: '/receiving', label: 'Receiving' }, { href: '/reference', label: 'Reference' }];
 let open = false;
 </script>
 
