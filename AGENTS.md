@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL16 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL17 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -125,3 +125,4 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL14** — Supplier simplification + reference cleanup + receiving tidy. Reference: supplier is now a single free-text name field (no code; `suppliers.code` made nullable) and every reference list (supplier/kategori/ball code/ball name) has a Hapus (×) delete button. Purchasing: removed the "Tambah Supplier" section (suppliers are managed in Reference now); supplier dropdown shows name. Receiving: removed the Harga Beli and Seller columns. Migration sql/0009_pr_cl14_supplier_name_reference_delete.sql drops NOT NULL on suppliers.code and recreates v_ball_economics to expose supplier as COALESCE(name, code). Idempotent; owner applied SQL to prod first. No DROP table / hard DELETE, no wms.*.
 - **PR-CL15** — Purchasing: tombol "Label" per baris di Daftar Ball untuk cetak label barcode. `printLabel(b)` membuka window cetak ukuran A6 150×100mm (`@page { size: 150mm 100mm }`) berisi barcode Code128 dari `internal_code` (di-render via JsBarcode dari CDN jsdelivr), plus ball code/nama/kategori + teks internal_code. Auto `window.print()`. Frontend only, no migration, no DB change. Internal code sudah selalu terisi (auto-generate PR-CL9).
 - **PR-CL16** — Pindahkan tombol `Label` dari Purchasing ke Receiving (di samping tombol `Terima` pada daftar ball berstatus `ordered`). Format barcode diganti dari 1D Code128 menjadi **2D QR Code** (di-render via `QRCode.toCanvas` dari CDN `qrcode@1.5.3` jsdelivr) berisi `internal_code`. Label tetap ukuran A6 150×100mm (`@page { size: 150mm 100mm }`), berisi ball code/nama·kategori + QR + teks internal_code, auto `window.print()`. Tombol Label dihapus dari Purchasing. Frontend only, no migration, no DB change.
+- **PR-CL17** — Fix bug: QR di label cetak tidak muncul. Library QR diganti dari `qrcode@1.5.3` (`QRCode.toCanvas` — build modul gagal expose global di window cetak `about:blank`, error ditelan diam-diam) ke **`qrcode-generator@1.4.4`** (global sinkron `qrcode()`), di-render sebagai **SVG scalable** ke `#qr`. Ditambah fallback (tampilkan teks code kalau QR gagal) + trigger ganda (`load` event + timeout) supaya tidak hang. Tetap A6 150×100mm, isi sama. Frontend only, no migration, no DB change.
