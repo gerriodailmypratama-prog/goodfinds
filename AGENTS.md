@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL18 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL19 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -127,3 +127,5 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL16** — Pindahkan tombol `Label` dari Purchasing ke Receiving (di samping tombol `Terima` pada daftar ball berstatus `ordered`). Format barcode diganti dari 1D Code128 menjadi **2D QR Code** (di-render via `QRCode.toCanvas` dari CDN `qrcode@1.5.3` jsdelivr) berisi `internal_code`. Label tetap ukuran A6 150×100mm (`@page { size: 150mm 100mm }`), berisi ball code/nama·kategori + QR + teks internal_code, auto `window.print()`. Tombol Label dihapus dari Purchasing. Frontend only, no migration, no DB change.
 - **PR-CL17** — Fix bug: QR di label cetak tidak muncul. Library QR diganti dari `qrcode@1.5.3` (`QRCode.toCanvas` — build modul gagal expose global di window cetak `about:blank`, error ditelan diam-diam) ke **`qrcode-generator@1.4.4`** (global sinkron `qrcode()`), di-render sebagai **SVG scalable** ke `#qr`. Ditambah fallback (tampilkan teks code kalau QR gagal) + trigger ganda (`load` event + timeout) supaya tidak hang. Tetap A6 150×100mm, isi sama. Frontend only, no migration, no DB change.
 - **PR-CL18** — Fix: app error `permission denied for table suppliers` saat hapus reference supplier. `goodfinds.suppliers` cuma punya GRANT INSERT/SELECT/UPDATE (DELETE kelewat di 0009). Migration 0010 nambah `grant delete on goodfinds.suppliers to anon, authenticated;` (idempotent). RLS policy `p_suppliers_all` (ALL) udah ada. DB-only.
+- **PR-CL19** — Fix: app error `update or delete on table "suppliers" violates foreign key constraint "balls_supplier_id_fkey"` saat hapus supplier. FK `balls.supplier_id` dulu NO ACTION -> diganti `ON DELETE SET NULL` (migration 0011): hapus supplier nge-set `balls.supplier_id = NULL` (ball tetap ada). Sekalian cleanup 3 orphan supplier_id. Idempotent (drop+add FK). DB-only.
+
