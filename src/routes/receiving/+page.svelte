@@ -54,6 +54,46 @@ async function receiveBall(b) {
   await loadAll();
 }
 
+
+  function printLabel(b) {
+    const code = b.internal_code || '';
+    if (!code) { errorMsg = 'Ball ini belum punya internal code.'; return; }
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const ball = esc(b.ball_code || '');
+    const nama = esc(b.ball_name || '');
+    const kat = esc(b.category || '');
+    const w = window.open('', '_blank', 'width=600,height=400');
+    if (!w) { errorMsg = 'Popup diblokir browser. Izinkan popup untuk cetak label.'; return; }
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Label ${esc(code)}<\/title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
+<style>
+  @page { size: 150mm 100mm; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .label { width: 150mm; height: 100mm; padding: 6mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Arial, Helvetica, sans-serif; }
+  .ball { font-size: 30px; font-weight: 700; margin-bottom: 2mm; text-align: center; }
+  .meta { font-size: 15px; color: #333; margin-bottom: 4mm; text-align: center; }
+  canvas { width: 55mm; height: 55mm; }
+  .code { font-size: 16px; letter-spacing: 1px; margin-top: 3mm; font-family: monospace; }
+  @media print { .noprint { display: none; } }
+  .noprint { margin-top: 8px; }
+<\/style><\/head>
+<body><div class="label">
+  <div class="ball">${ball}<\/div>
+  <div class="meta">${nama ? nama + ' \u00b7 ' : ''}${kat}<\/div>
+  <canvas id="qr"><\/canvas>
+  <div class="code">${esc(code)}<\/div>
+<\/div>
+<div class="noprint" style="text-align:center"><button onclick="window.print()">Cetak<\/button><\/div>
+<script>
+  function render(cb){ try { QRCode.toCanvas(document.getElementById('qr'), ${JSON.stringify(code)}, { width: 320, margin: 1, errorCorrectionLevel: 'M' }, cb); } catch(e){ cb && cb(); } }
+  function go(){ render(function(){ setTimeout(function(){ window.focus(); window.print(); }, 350); }); }
+  if (window.QRCode) { go(); } else { window.addEventListener('load', go); }
+<\/script>
+<\/body><\/html>`);
+    w.document.close();
+  }
+
 onMount(loadAll);
 </script>
 
@@ -103,6 +143,7 @@ onMount(loadAll);
                 <input type="number" min="0" bind:value={inputs[b.id].qty_reject} placeholder="0" class="w-24 rounded border border-[#333] bg-[#0a0a0a] px-2 py-1.5" />
               </td>
               <td class="px-4 py-2">
+                <button on:click={() => printLabel(b)} class="rounded bg-indigo-600 text-white px-3 py-1.5 text-xs font-medium hover:bg-indigo-700 whitespace-nowrap mr-2">Label</button>
                 <button on:click={() => receiveBall(b)} disabled={savingId === b.id} class="rounded bg-emerald-600 text-white px-3 py-1.5 text-xs font-medium hover:bg-emerald-700 disabled:opacity-50 whitespace-nowrap">{savingId === b.id ? 'Menyimpan...' : 'Terima'}</button>
               </td>
             </tr>

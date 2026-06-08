@@ -92,46 +92,6 @@ await rememberReferences();
     await loadAll();
   }
 
-
-function printLabel(b) {
-    const code = b.internal_code || ''
-    if (!code) { errorMsg = 'Ball ini belum punya internal code.'; return }
-    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
-    const ball = esc(b.ball_code || '')
-    const nama = esc(b.ball_name || '')
-    const kat = esc(b.category || '')
-    const w = window.open('', '_blank', 'width=600,height=400')
-    if (!w) { errorMsg = 'Popup diblokir browser. Izinkan popup untuk cetak label.'; return }
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Label ${esc(code)}</title>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"><\/script>
-<style>
-  @page { size: 150mm 100mm; margin: 0; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  .label { width: 150mm; height: 100mm; padding: 6mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Arial, Helvetica, sans-serif; }
-  .ball { font-size: 30px; font-weight: 700; margin-bottom: 2mm; text-align: center; }
-  .meta { font-size: 15px; color: #333; margin-bottom: 4mm; text-align: center; }
-  svg { width: 100%; max-width: 130mm; height: auto; }
-  .code { font-size: 16px; letter-spacing: 1px; margin-top: 2mm; font-family: monospace; }
-  @media print { .noprint { display: none; } }
-  .noprint { margin-top: 8px; }
-</style></head>
-<body><div class="label">
-  <div class="ball">${ball}</div>
-  <div class="meta">${nama ? nama + ' &middot; ' : ''}${kat}</div>
-  <svg id="bc"></svg>
-  <div class="code">${esc(code)}</div>
-</div>
-<div class="noprint" style="text-align:center"><button onclick="window.print()">Cetak</button></div>
-<script>
-  function render(){ try { JsBarcode('#bc', ${JSON.stringify(code)}, { format: 'CODE128', width: 2, height: 80, displayValue: false, margin: 0 }); } catch(e){} }
-  function go(){ render(); setTimeout(function(){ window.focus(); window.print(); }, 350); }
-  if (window.JsBarcode) { go(); } else { window.addEventListener('load', go); }
-<\/script>
-</body></html>`)
-    w.document.close()
-  }
-
   onMount(loadAll);
 </script>
 
@@ -229,7 +189,6 @@ function printLabel(b) {
 <td class="px-4 py-2 text-right font-semibold">{rupiah(b.modal_per_pcs)}</td>
 <td class="px-4 py-2 text-right">{persen(b.reject_pct)}</td>
             <td class="px-4 py-2 text-right">
-              <button onclick={() => printLabel(b)} class="rounded border border-gray-300 text-gray-700 hover:bg-gray-50 px-2 py-1 text-xs mr-1">Label</button>
               <button onclick={() => deleteBall(b)} class="rounded border border-red-300 text-red-600 hover:bg-red-50 px-2 py-1 text-xs">Hapus</button>
             </td>
           </tr>
