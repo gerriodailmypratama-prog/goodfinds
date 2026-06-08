@@ -55,7 +55,7 @@ async function receiveBall(b) {
 }
 
 
-  function printLabel(b) {
+    function printLabel(b) {
     const code = b.internal_code || '';
     if (!code) { errorMsg = 'Ball ini belum punya internal code.'; return; }
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -65,7 +65,7 @@ async function receiveBall(b) {
     const w = window.open('', '_blank', 'width=600,height=400');
     if (!w) { errorMsg = 'Popup diblokir browser. Izinkan popup untuk cetak label.'; return; }
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Label ${esc(code)}<\/title>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"><\/script>
 <style>
   @page { size: 150mm 100mm; margin: 0; }
   * { box-sizing: border-box; }
@@ -73,7 +73,8 @@ async function receiveBall(b) {
   .label { width: 150mm; height: 100mm; padding: 6mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Arial, Helvetica, sans-serif; }
   .ball { font-size: 30px; font-weight: 700; margin-bottom: 2mm; text-align: center; }
   .meta { font-size: 15px; color: #333; margin-bottom: 4mm; text-align: center; }
-  canvas { width: 55mm; height: 55mm; }
+  #qr { width: 55mm; height: 55mm; display: flex; align-items: center; justify-content: center; }
+  #qr svg { width: 100%; height: 100%; }
   .code { font-size: 16px; letter-spacing: 1px; margin-top: 3mm; font-family: monospace; }
   @media print { .noprint { display: none; } }
   .noprint { margin-top: 8px; }
@@ -81,14 +82,26 @@ async function receiveBall(b) {
 <body><div class="label">
   <div class="ball">${ball}<\/div>
   <div class="meta">${nama ? nama + ' \u00b7 ' : ''}${kat}<\/div>
-  <canvas id="qr"><\/canvas>
+  <div id="qr"><\/div>
   <div class="code">${esc(code)}<\/div>
 <\/div>
 <div class="noprint" style="text-align:center"><button onclick="window.print()">Cetak<\/button><\/div>
 <script>
-  function render(cb){ try { QRCode.toCanvas(document.getElementById('qr'), ${JSON.stringify(code)}, { width: 320, margin: 1, errorCorrectionLevel: 'M' }, cb); } catch(e){ cb && cb(); } }
-  function go(){ render(function(){ setTimeout(function(){ window.focus(); window.print(); }, 350); }); }
-  if (window.QRCode) { go(); } else { window.addEventListener('load', go); }
+  var CODE = ${JSON.stringify(code)};
+  var printed = false;
+  function render(){
+    var el = document.getElementById('qr');
+    try {
+      var qr = qrcode(0, 'M');
+      qr.addData(CODE);
+      qr.make();
+      el.innerHTML = qr.createSvgTag({ scalable: true });
+    } catch (e) {
+      el.innerHTML = '<div style=`"font-family:monospace;font-size:20px"`>' + CODE + '<\/div>';
+    }
+  }
+  function go(){ if (printed) return; printed = true; render(); setTimeout(function(){ window.focus(); window.print(); }, 400); }
+  if (typeof qrcode !== 'undefined') { go(); } else { window.addEventListener('load', go); setTimeout(go, 1500); }
 <\/script>
 <\/body><\/html>`);
     w.document.close();
