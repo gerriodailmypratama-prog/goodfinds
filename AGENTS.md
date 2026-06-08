@@ -34,7 +34,7 @@ Each agent stream owns a unique PR-label prefix. Serial increments **per-owner**
 
 | Prefix | Owner / Stream | Status | Latest |
 |---|---|---|---|
-| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL13 |
+| PR-CL | Claude (Anthropic) — scaffolding & initial modules | Active | PR-CL14 |
 
 ➕ **New agent?** Add your row above in the same PR as your first code change. Keep the table sorted by introduction date (oldest first).
 
@@ -122,3 +122,4 @@ STOP and get explicit owner approval in chat before:
 - **PR-CL12** — Purchasing: complete delete + autocomplete missing from PR-CL11 — per-row Hapus button (soft-delete via balls.deleted_at; rows hidden by v_ball_economics filter), and ball code / nama / kategori inputs use datalist autocomplete from reference tables (categories, ball_codes, ball_names) with upsert-back on save. No DB change (migration 0007 already applied). No DROP table / DELETE, no wms.*.
 
 - **PR-CL13** — Fix: `balls_status_check` rejected new balls because the column default (and Purchasing insert) is `'ordered'` but the old constraint only allowed `'bought'`/`'opened'`/`'closed'` (error: new row violates check constraint balls_status_check on Input Ball). Migration sql/0008_pr_cl13_status_check_ordered.sql drops + re-adds the check to allow `ordered`/`opened`/`bought`/`closed`. Idempotent; owner applied SQL to prod first. No DROP table / hard DELETE, no wms.*.
+- **PR-CL14** — Supplier simplification + reference cleanup + receiving tidy. Reference: supplier is now a single free-text name field (no code; `suppliers.code` made nullable) and every reference list (supplier/kategori/ball code/ball name) has a Hapus (×) delete button. Purchasing: removed the "Tambah Supplier" section (suppliers are managed in Reference now); supplier dropdown shows name. Receiving: removed the Harga Beli and Seller columns. Migration sql/0009_pr_cl14_supplier_name_reference_delete.sql drops NOT NULL on suppliers.code and recreates v_ball_economics to expose supplier as COALESCE(name, code). Idempotent; owner applied SQL to prod first. No DROP table / hard DELETE, no wms.*.
