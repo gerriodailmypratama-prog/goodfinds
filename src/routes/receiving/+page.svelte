@@ -97,7 +97,7 @@ async function receiveBall(b) {
       qr.make();
       el.innerHTML = qr.createSvgTag({ scalable: true });
     } catch (e) {
-      el.innerHTML = '<div style=`"font-family:monospace;font-size:20px"`>' + CODE + '<\/div>';
+      el.innerHTML = "<div style='font-family:monospace;font-size:20px'>" + CODE + "<\/div>";
     }
   }
   function go(){ if (printed) return; printed = true; render(); setTimeout(function(){ window.focus(); window.print(); }, 400); }
