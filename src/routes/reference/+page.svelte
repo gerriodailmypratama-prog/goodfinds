@@ -11,7 +11,7 @@
   let ballCodes = [];
   let ballNames = [];
 
-  let input = { supplier: '', supplierName: '', category: '', ballCode: '', ballName: '' };
+  let input = { supplier: '', category: '', ballCode: '', ballName: '' };
 
   async function loadAll() {
     loading = true;
@@ -32,14 +32,14 @@
   }
 
   async function addSupplier() {
-    const code = input.supplier.trim();
-    if (!code) return;
-    saving = true;
-    const { error } = await supabase.from('suppliers').insert({ code, name: input.supplierName.trim() || null });
-    saving = false;
-    if (error) { errorMsg = error.message; return; }
-    input.supplier = ''; input.supplierName = '';
-    await loadAll();
+    const name = input.supplier.trim()
+    if (!name) return
+    saving = true
+    const { error } = await supabase.from('suppliers').insert({ name })
+    saving = false
+    if (error) { errorMsg = error.message; return }
+    input.supplier = ''
+    await loadAll()
   }
 
   async function addCategory() {
@@ -75,6 +75,14 @@
     await loadAll();
   }
 
+async function removeRow(table, id, label) {
+    if (!confirm('Hapus ' + label + '?')) return
+    errorMsg = ''
+    const { error } = await supabase.from(table).delete().eq('id', id)
+    if (error) { errorMsg = error.message; return }
+    await loadAll()
+  }
+
   onMount(loadAll);
 </script>
 
@@ -93,18 +101,15 @@
       <span class="text-xs text-gray-500">{suppliers.length}</span>
     </div>
     <div class="p-4 flex flex-wrap items-end gap-2">
-      <label class="text-sm">Kode
-        <input bind:value={input.supplier} placeholder="A" class="mt-1 w-24 rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1.5" />
-      </label>
-      <label class="text-sm">Nama (opsional)
-        <input bind:value={input.supplierName} placeholder="Toko A" class="mt-1 w-40 rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1.5" />
+      <label class="text-sm">Nama supplier
+        <input bind:value={input.supplier} placeholder="Toko A" class="mt-1 w-48 rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1.5" />
       </label>
       <button onclick={addSupplier} disabled={saving} class="rounded bg-green-500 text-black px-3 py-2 text-sm font-medium hover:bg-green-400 disabled:opacity-50">+ Tambah</button>
     </div>
     {#if !loading}
       <ul class="px-4 pb-4 flex flex-wrap gap-2">
         {#each suppliers as s}
-          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs">{s.code}{s.name ? ' — ' + s.name : ''}</li>
+          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs flex items-center gap-1.5"><span>{s.name || s.code}</span><button type="button" onclick={() => removeRow('suppliers', s.id, s.name || s.code)} class="text-red-400 hover:text-red-300 leading-none" title="Hapus">×</button></li>
         {/each}
       </ul>
     {/if}
@@ -125,7 +130,7 @@
     {#if !loading}
       <ul class="px-4 pb-4 flex flex-wrap gap-2">
         {#each categories as c}
-          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs">{c.name}</li>
+          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs flex items-center gap-1.5"><span>{c.name}</span><button type="button" onclick={() => removeRow('categories', c.id, c.name)} class="text-red-400 hover:text-red-300 leading-none" title="Hapus">×</button></li>
         {/each}
       </ul>
     {/if}
@@ -146,7 +151,7 @@
     {#if !loading}
       <ul class="px-4 pb-4 flex flex-wrap gap-2">
         {#each ballCodes as b}
-          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs font-mono">{b.code}</li>
+          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs font-mono flex items-center gap-1.5"><span>{b.code}</span><button type="button" onclick={() => removeRow('ball_codes', b.id, b.code)} class="text-red-400 hover:text-red-300 leading-none" title="Hapus">×</button></li>
         {/each}
       </ul>
     {/if}
@@ -167,7 +172,7 @@
     {#if !loading}
       <ul class="px-4 pb-4 flex flex-wrap gap-2">
         {#each ballNames as b}
-          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs">{b.name}</li>
+          <li class="rounded border border-[#2a2a2a] bg-[#0a0a0a] px-2 py-1 text-xs flex items-center gap-1.5"><span>{b.name}</span><button type="button" onclick={() => removeRow('ball_names', b.id, b.name)} class="text-red-400 hover:text-red-300 leading-none" title="Hapus">×</button></li>
         {/each}
       </ul>
     {/if}

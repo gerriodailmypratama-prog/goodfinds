@@ -82,9 +82,7 @@ onMount(loadAll);
             <th class="px-4 py-2">Ball</th>
             <th class="px-4 py-2">Nama</th>
             <th class="px-4 py-2">Kategori</th>
-            <th class="px-4 py-2">Seller</th>
             <th class="px-4 py-2">Tanggal</th>
-            <th class="px-4 py-2">Harga Beli</th>
             <th class="px-4 py-2 w-28">Qty Pcs</th>
             <th class="px-4 py-2 w-28">Qty Reject</th>
             <th class="px-4 py-2"></th>
@@ -97,9 +95,7 @@ onMount(loadAll);
               <td class="px-4 py-2 font-medium">{b.ball_code}</td>
               <td class="px-4 py-2">{b.ball_name ?? '-'}</td>
               <td class="px-4 py-2">{b.category}</td>
-              <td class="px-4 py-2">{b.supplier_code ?? '-'}</td>
               <td class="px-4 py-2">{b.buy_date}</td>
-              <td class="px-4 py-2">{rupiah(b.buy_price)}</td>
               <td class="px-4 py-2">
                 <input type="number" min="0" bind:value={inputs[b.id].qty_pcs} placeholder="475" class="w-24 rounded border border-[#333] bg-[#0a0a0a] px-2 py-1.5" />
               </td>

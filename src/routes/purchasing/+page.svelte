@@ -24,7 +24,6 @@ shipping_cost: '',
 buy_date: today
 };
 
-let newSupplierCode = '';
 
 async function loadAll() {
 loading = true;
@@ -46,13 +45,7 @@ balls = bRes.data ?? [];
 loading = false;
 }
 
-async function addSupplier() {
-if (!newSupplierCode.trim()) return;
-const { error } = await supabase.from('suppliers').insert({ code: newSupplierCode.trim() });
-if (error) { errorMsg = error.message; return; }
-newSupplierCode = '';
-await loadAll();
-}
+
 
 async function saveBall() {
 errorMsg = '';
@@ -126,7 +119,7 @@ onMount(loadAll);
 <select bind:value={form.supplier_id} class="mt-1 w-full rounded border-gray-300 border px-2 py-1.5">
 <option value="">- pilih -</option>
 {#each suppliers as s}
-<option value={s.id}>{s.code}{s.name ? ' - ' + s.name : ''}</option>
+<option value={s.id}>{s.name || s.code}</option>
 {/each}
 </select>
 </label>
@@ -154,13 +147,6 @@ onMount(loadAll);
         {#each categories as c}<option value={c.name}></option>{/each}
       </datalist>
     </section>
-
-<section class="rounded-lg border border-gray-200 bg-white p-4 flex items-end gap-3">
-<label class="text-sm">Tambah Supplier (kode)
-<input bind:value={newSupplierCode} placeholder="A" class="mt-1 w-32 rounded border-gray-300 border px-2 py-1.5" />
-</label>
-<button onclick={addSupplier} class="rounded border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50">+ Supplier</button>
-</section>
 
 <section class="rounded-lg border border-gray-200 bg-white overflow-hidden">
 <div class="px-5 py-3 border-b border-gray-200 font-semibold">Daftar Ball</div>
